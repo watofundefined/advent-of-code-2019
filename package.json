@@ -4,7 +4,7 @@
   "description": "",
   "main": "day01.js",
   "scripts": {
-    "test": "tape 01/**/test.js"
+    "test": "tape '[0-9]*/**/test.js'"
   },
   "keywords": [],
   "author": "",
