@@ -1,7 +1,4 @@
-module.exports = {
-  firstArg: 12,
-  secondArg: 2,
-  program: [
+module.exports = { program: [
     1,
     0,
     0,
@@ -175,5 +172,4 @@ module.exports = {
     0,
     14,
     0,
-  ],
-};
+] };

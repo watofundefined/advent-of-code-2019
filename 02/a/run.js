@@ -1,4 +1,4 @@
-const {computer, restore} = require('./impl.js');
-const input = require('./input');
+const {computer, init} = require('./impl.js');
+const { program, firstArg, secondArg } = require('./input');
 
-console.log(computer(restore(input)));
+console.log(computer(init(program, firstArg, secondArg)));

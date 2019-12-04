@@ -1,7 +1,7 @@
 const test = require('tape');
-const {computer} = require('./impl.js');
+const {computer, init} = require('./impl.js');
 
-test('opCoComputer tests', function(t) {
+test('02a - \'computer\' is ok', function(t) {
   t.plan(4);
 
   t.deepEqual(computer([1, 0, 0, 0, 99]), [2, 0, 0, 0, 99]);
@@ -18,4 +18,16 @@ test('opCoComputer tests', function(t) {
     0,
     99,
   ]);
+});
+
+test('02a - \'init\' is ok', function(t) {
+  t.plan(2);
+
+  const program = [1, 0, 0, 0, 99];
+  const arg1 = 5;
+  const arg2 = 10;
+  const expected = [1, 5, 10, 0, 99];
+
+  t.deepEqual(init(program, arg1, arg2), expected);
+  t.deepEqual(program, program, "Original program wasn't modified");
 });
