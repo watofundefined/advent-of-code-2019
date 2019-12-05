@@ -1,4 +1,6 @@
-// const {computer, restore} = require('./impl.js');
-// const input = require('./input');
-// 
-// console.log(computer(restore(input)));
+const {program, expectedResult} = require('./input');
+const {determineInputs} = require('./impl');
+
+const {noun, verb} = determineInputs(expectedResult, program);
+
+console.log(100 * noun + verb);

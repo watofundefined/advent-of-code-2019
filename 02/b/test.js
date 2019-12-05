@@ -1,19 +1,6 @@
 const test = require('tape');
 
-const {computer, init} = require('../a/impl.js');
-
-function determineInputs(resultValue, program) {
-  for (let i = 0; i < 100; i++) {
-    for (let j = 0; j < 100; j++) {
-      const initState = program.slice();
-      const resultState = computer(init(initState, i, j));
-
-      if (resultState[0] == resultValue) {
-        return {noun: i, verb: j};
-      }
-    }
-  }
-}
+const {determineInputs} = require('./impl');
 
 test("02b - 'determineInputs' is ok", function(t) {
   t.deepEqual(determineInputs(2, [1, 123, 234, 0, 99]), {noun: 0, verb: 0});

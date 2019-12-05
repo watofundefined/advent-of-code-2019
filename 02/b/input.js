@@ -1,4 +1,6 @@
-module.exports = { program: [
+module.exports = {
+  expectedResult: 19690720,
+  program: [
     1,
     0,
     0,
@@ -172,4 +174,5 @@ module.exports = { program: [
     0,
     14,
     0,
-] };
+  ],
+};
