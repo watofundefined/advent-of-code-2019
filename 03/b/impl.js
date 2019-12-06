@@ -1,5 +1,3 @@
-const test = require('tape');
-
 const Direction = {
   Up: 'U',
   Down: 'D',
@@ -12,8 +10,8 @@ function closestIntersectionToHub(cable1, cable2) {
   markCable(board, cable1, '#1');
   const overlappingPoints = markCable(board, cable2, '#2');
   const shortestDistance = overlappingPoints.reduce(
-    (shortestDistanceSoFar, point) => {
-      const distance = Math.abs(point.x) + Math.abs(point.y);
+    (shortestDistanceSoFar, extendedPoint) => {
+      const distance = extendedPoint.totalLengthFromHub;
       return Math.min(shortestDistanceSoFar, distance);
     },
     Infinity,
@@ -23,11 +21,12 @@ function closestIntersectionToHub(cable1, cable2) {
 }
 
 /**
- * @returns {Point[]} - Points where cable crosess with other cable
+ * @returns {ExtendedPoint[]} - Points where cable crosess with other cable
  */
 function markCable(board, cable, cableId) {
   let point = new Point(0, 0);
   let overlaps = [];
+  let cableLengthSoFar = 0;
 
   cable.split(',').forEach(part => {
     const {overlappingPoints, endPoint} = markLine(
@@ -35,9 +34,11 @@ function markCable(board, cable, cableId) {
       point,
       cableId,
       part[0],
-      part.slice(1),
+      +part.slice(1),
+      cableLengthSoFar,
     );
 
+    cableLengthSoFar += +part.slice(1);
     point = endPoint;
     overlaps = [...overlaps, ...overlappingPoints];
   });
@@ -46,16 +47,25 @@ function markCable(board, cable, cableId) {
 }
 
 /**
- * @returns {{overlappingPoints: Point[], endPoint: Point}}
+ * @returns {{overlappingPoints: ExtendedPoint[], endPoint: Point}}
  */
-function markLine(board, startingPoint, id, direction, length) {
+function markLine(
+  board,
+  startingPoint,
+  id,
+  direction,
+  length,
+  cableLengthSoFar,
+) {
   const overlappingPoints = [];
   let lastPoint = startingPoint;
 
   for (let i = 1; i <= length; i++) {
+    cableLengthSoFar++;
+
     lastPoint = pointFrom(lastPoint, direction);
 
-    const overlap = markPoint(board, id, lastPoint);
+    const overlap = markPoint(board, id, lastPoint, cableLengthSoFar);
 
     if (overlap) overlappingPoints.push(overlap);
   }
@@ -67,15 +77,28 @@ function markLine(board, startingPoint, id, direction, length) {
  * @param {object} board
  * @param {string} id
  * @param {Point} point
- * @returns {point|undefined} Returns `point` if it's already marked
- *   on the board by another `id`, returns `undefined` otherwise
+ * @param {number} cableLengthSoFar
+ * @returns {ExtendedPoint|undefined} Returns `ExtendedPoint` if the point
+ *   has already marked on the board by another `id`,
+ *   returns `undefined` otherwise
  */
-function markPoint(board, id, point) {
-  let val = board[point.toString()];
-  if (val) {
-    return val === id ? undefined : point;
+function markPoint(board, id, point, cableLengthSoFar) {
+  let meta = board[point.toString()];
+  if (meta) {
+    if (meta.cables.find(c => c === id)) {
+      // that cable has already been here, it won't be any shorter this time
+      return undefined;
+    }
+
+    return {
+      ...point,
+      totalLengthFromHub: meta.totalLengthFromHub + cableLengthSoFar,
+    };
   } else {
-    board[point.toString()] = id;
+    board[point.toString()] = {
+      cables: [id],
+      totalLengthFromHub: cableLengthSoFar,
+    };
     return undefined;
   }
 }
@@ -101,6 +124,12 @@ function pointFrom(startingPoint, direction) {
   }
 }
 
+function ExtendedPoint(x, y, totalLengthFromHub) {
+  this.x = x;
+  this.y = y;
+  this.totalLengthFromHub = totalLengthFromHub;
+}
+
 function Point(x, y) {
   this.x = x;
   this.y = y;
@@ -110,21 +139,4 @@ Point.prototype.toString = function() {
   return `${this.x}-${this.y}`;
 };
 
-test("03b - 'closestIntersectionToHub' is ok", function(t) {
-  t.equal(closestIntersectionToHub('R8,U5,L5,D3', 'U7,R6,D4,L4'), 6);
-  t.equal(
-    closestIntersectionToHub(
-      'R75,D30,R83,U83,L12,D49,R71,U7,L72',
-      'U62,R66,U55,R34,D71,R55,D58,R83',
-    ),
-    159,
-  );
-  t.equal(
-    closestIntersectionToHub(
-      'R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51',
-      'U98,R91,D20,R16,D67,R40,U7,R15,U6,R7',
-    ),
-    135,
-  );
-  t.end();
-});
+exports.closestIntersectionToHub = closestIntersectionToHub;
